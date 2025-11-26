@@ -1,4 +1,3 @@
-// app/api/links/route.js
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/mongoose';
 import Link from '@/models/Link';

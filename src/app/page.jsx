@@ -1,85 +1,10 @@
-"use client";
+"use client"; 
 
-import { useState, useEffect } from "react";
-import { format } from "date-fns";
+import toast from "react-hot-toast"; 
+import { useEffect, useState } from "react";
+import { Link2, Loader2, Plus, Search } from "lucide-react";
 import copy from "copy-to-clipboard";
-import {
-  Link2,
-  Plus,
-  Search,
-  Copy,
-  BarChart3,
-  Trash2,
-  Globe,
-  Loader2,
-  CheckCircle2,
-  AlertCircle,
-} from "lucide-react";
-
-function LinkRow({ link, onDelete, baseUrl }) {
-  const shortUrl = `${baseUrl}/${link.code}`;
-
-  const copyShort = () => copy(shortUrl);
-  const copyTarget = () => copy(link.targetUrl);
-
-  return (
-    <div className="group flex items-center justify-between py-5 border-b border-gray-100 last:border-0 hover:bg-gray-50/50 transition-colors">
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-3">
-          <code className="font-medium text-gray-900 text-sm tracking-tight">
-            {link.code}
-          </code>
-          <button
-            onClick={copyShort}
-            className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-gray-600"
-          >
-            <Copy className="w-4 h-4" />
-          </button>
-        </div>
-        <div className="flex items-center gap-2 mt-2 text-sm text-gray-500">
-          <Globe className="w-3.5 h-3.5" />
-          <span className="truncate max-w-md">{link.targetUrl}</span>
-          <button
-            onClick={copyTarget}
-            className="ml-1 text-gray-400 hover:text-gray-600"
-          >
-            <Copy className="w-3.5 h-3.5" />
-          </button>
-        </div>
-      </div>
-
-      <div className="flex items-center gap-8 text-sm">
-        <div className="text-center w-20">
-          <div className="font-semibold text-gray-900">
-            {link.clicks.toLocaleString()}
-          </div>
-          <div className="text-xs text-gray-500">clicks</div>
-        </div>
-        <div className="w-32 text-gray-600">
-          {link.lastClicked
-            ? format(new Date(link.lastClicked), "MMM d, yyyy")
-            : "—"}
-        </div>
-        <div className="flex items-center gap-4">
-          <a
-            href={`/code/${link.code}`}
-            className="text-gray-500 hover:text-gray-900 transition-colors"
-            title="View stats"
-          >
-            <BarChart3 className="w-4 h-4" />
-          </a>
-          <button
-            onClick={() => confirm("Delete this link?") && onDelete(link.code)}
-            className="text-gray-400 hover:text-red-600 transition-colors"
-            title="Delete"
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
+import LinkRow from "@/components/LinkRow";
 
 export default function Dashboard() {
   const [links, setLinks] = useState([]);
@@ -106,6 +31,7 @@ export default function Dashboard() {
       setLinks(data);
     } catch (err) {
       console.error(err);
+      toast.error("Failed to load links");
     } finally {
       setLoading(false);
     }
@@ -126,36 +52,42 @@ export default function Dashboard() {
       });
 
       if (res.ok) {
-        setMessage({ type: "success", text: "Short link created!" });
+        const { code: newCode } = await res.json();
+        const shortUrl = `${baseUrl}/${newCode}`;
+
+        toast.success("Short link created!");
+        copy(shortUrl); 
+        toast.success("Short link copied to clipboard!", { duration: 2000 });
+
         setUrl("");
         setCode("");
         fetchLinks();
-        setTimeout(() => setMessage(null), 3000);
       } else {
         const { error } = await res.json();
-        setMessage({ type: "error", text: error || "Failed to create link" });
+        toast.error(error || "Failed to create link");
       }
     } catch {
-      setMessage({ type: "error", text: "Network error" });
+      toast.error("Network error");
     } finally {
       setSubmitting(false);
     }
   };
 
- const handleDelete = async (code) => {
+  const handleDelete = async (code) => {
     if (!confirm("Delete this link?")) return;
 
     try {
-        const res = await fetch(`/api/links?code=${code}`, { method: "DELETE" });
-        if (res.ok) {
-            fetchLinks();
-        } else {
-            alert("Failed to delete");
-        }
+      const res = await fetch(`/api/links?code=${code}`, { method: "DELETE" });
+      if (res.ok) {
+        toast.success("Link deleted");
+        fetchLinks();
+      } else {
+        toast.error("Failed to delete link");
+      }
     } catch (err) {
-        alert("Network error");
+      toast.error("Network error");
     }
-};
+  };
 
   const filteredLinks = links?.filter(
     (link) =>
@@ -179,10 +111,7 @@ export default function Dashboard() {
 
         {/* Create Form */}
         <div className="bg-white rounded-2xl border border-gray-200 p-8 mb-10">
-          <form
-            onSubmit={handleSubmit}
-            className="flex flex-col sm:flex-row gap-4"
-          >
+          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4">
             <input
               type="url"
               placeholder="Enter a long URL..."
@@ -213,23 +142,6 @@ export default function Dashboard() {
               )}
             </button>
           </form>
-
-          {message && (
-            <div
-              className={`mt-5 p-4 rounded-xl flex items-center gap-3 ${
-                message.type === "success"
-                  ? "bg-green-50 text-green-800 border border-green-200"
-                  : "bg-red-50 text-red-800 border border-red-200"
-              }`}
-            >
-              {message.type === "success" ? (
-                <CheckCircle2 className="w-5 h-5" />
-              ) : (
-                <AlertCircle className="w-5 h-5" />
-              )}
-              <span className="font-medium">{message.text}</span>
-            </div>
-          )}
         </div>
 
         {/* Search */}

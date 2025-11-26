@@ -1,11 +1,9 @@
-// app/code/[code]/page.jsx   ← File path must be exactly this
 
 import { format } from 'date-fns';
 import { notFound } from 'next/navigation';
 import { connectDB } from '@/lib/mongoose';
 import Link from '@/models/Link';
 
-// This forces fresh data every time (important!)
 export const dynamic = 'force-dynamic';
 
 async function StatsPage({ params }) {
@@ -24,7 +22,7 @@ async function StatsPage({ params }) {
     const shortUrl = `${baseUrl}/${link.code}`;
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center px-6">
+      <div className="min-h-screen bg-linear-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center px-6">
         <div className="max-w-md w-full bg-white rounded-3xl shadow-xl border border-gray-200 p-8">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900 flex items-center justify-center gap-3">
@@ -86,5 +84,4 @@ async function StatsPage({ params }) {
   }
 }
 
-// THIS LINE WAS MISSING — ADD IT!
 export default StatsPage;

@@ -1,10 +1,17 @@
 // app/page.jsx
-
 "use client";
 
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { Link2, Loader2, Plus, Search, Sparkles, ExternalLink } from "lucide-react";
+import {
+  Link2,
+  Loader2,
+  Plus,
+  Search,
+  Sparkles,
+  ExternalLink,
+  ArrowUpDown,
+} from "lucide-react";
 import copy from "copy-to-clipboard";
 import LinkRow from "@/components/LinkRow";
 
@@ -16,6 +23,10 @@ export default function Dashboard() {
   const [code, setCode] = useState("");
   const [search, setSearch] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  // Sorting State
+  const [sortBy, setSortBy] = useState("date");
+  const [sortOrder, setSortOrder] = useState("desc");
 
   const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
 
@@ -50,7 +61,10 @@ export default function Dashboard() {
       const res = await fetch("/api/links", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: url.trim(), code: code.trim() || undefined }),
+        body: JSON.stringify({
+          url: url.trim(),
+          code: code.trim() || undefined,
+        }),
       });
 
       const result = await res.json();
@@ -94,11 +108,38 @@ export default function Dashboard() {
     }
   };
 
+  // Filter by search
   const filteredLinks = links.filter(
     (link) =>
       link.code.toLowerCase().includes(search.toLowerCase()) ||
       link.targetUrl.toLowerCase().includes(search.toLowerCase())
   );
+
+  // Sort the filtered links
+  const sortedLinks = [...filteredLinks].sort((a, b) => {
+    let aVal, bVal;
+
+    switch (sortBy) {
+      case "clicks":
+        aVal = a.clicks ?? 0;
+        bVal = b.clicks ?? 0;
+        break;
+      case "date":
+        aVal = new Date(a.createdAt || a.created_at).getTime();
+        bVal = new Date(b.createdAt || b.created_at).getTime();
+        break;
+      case "code":
+        aVal = a.code.toLowerCase();
+        bVal = b.code.toLowerCase();
+        break;
+      default:
+        return 0;
+    }
+
+    if (aVal < bVal) return sortOrder === "asc" ? -1 : 1;
+    if (aVal > bVal) return sortOrder === "asc" ? 1 : -1;
+    return 0;
+  });
 
   // GOD-TIER LOADING SCREEN
   if (initialLoad) {
@@ -111,9 +152,14 @@ export default function Dashboard() {
               <Link2 className="w-24 h-24 text-white mx-auto animate-bounce" />
             </div>
             <h1 className="text-6xl font-black text-white tracking-tighter mb-4">
-              Tiny<span className="text-transparent bg-clip-text bg-linear-to-r from-violet-400 to-indigo-400">Link</span>
+              Tiny
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-violet-400 to-indigo-400">
+                Link
+              </span>
             </h1>
-            <p className="text-white/60 text-lg tracking-wide">Crafting your experience...</p>
+            <p className="text-white/60 text-lg tracking-wide">
+              Crafting your experience...
+            </p>
             <div className="mt-10 flex justify-center gap-2">
               {[0, 1, 2].map((i) => (
                 <div
@@ -132,27 +178,29 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-violet-50">
       <div className="max-w-7xl mx-auto px-6 py-20">
-
         {/* Hero Header */}
         <div className="text-center mb-20">
           <div className="inline-flex items-center gap-5 bg-white/70 backdrop-blur-2xl px-12 py-6 rounded-full shadow-2xl border border-white/50 mb-8">
             <div className="relative">
               <Link2 className="w-14 h-14 text-violet-600" />
-              <Sparkles className="w-6 h-6 text-yellow-400 absolute -top-1 -right-1 animate-pulse" />
             </div>
-            <h1 className="text-6xl font-black bg-linear-to-r from-violet-600 to-indigo-600 bg-clip-text text-text text-transparent">
+            <h1 className="text-6xl font-black bg-linear-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
               TinyLink
             </h1>
           </div>
           <p className="text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Shorten links with style. Track clicks with precision. Own your data.
+            Shorten links with style. Track clicks with precision. Own your
+            data.
           </p>
         </div>
 
         {/* Create Form — Floating Masterpiece */}
         <div className="max-w-5xl mx-auto mb-16">
           <div className="bg-white/80 backdrop-blur-3xl rounded-3xl shadow-2xl border border-white/60 p-12 transform hover:scale-[1.005] transition-all duration-500">
-            <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
+            <form
+              onSubmit={handleSubmit}
+              className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end"
+            >
               <div className="lg:col-span-6 relative group">
                 <input
                   type="url"
@@ -170,8 +218,10 @@ export default function Dashboard() {
                   type="text"
                   placeholder="Custom code (optional)"
                   value={code}
-                  onChange={(e) => setCode(e.target.value.slice(0, 12).toUpperCase())}
-                  className="w-full px-4 py-3 text-xl rounded-2xl border-2 border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all bg-white/70 font-mono tracking-widest placeholder-gray-400 text-gray-800 "
+                  onChange={(e) =>
+                    setCode(e.target.value.slice(0, 12).toUpperCase())
+                  }
+                  className="w-full px-4 py-3 text-xl rounded-2xl border-2 border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all bg-white/70 font-mono tracking-widest placeholder-gray-400 text-gray-800"
                 />
               </div>
 
@@ -195,44 +245,101 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="border p-4 rounded-4xl">
-          {/* Search Bar */}
-        <div className="w-full mb-16">
-          <div className="relative group">
-            <Search className="absolute left-8 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-800 group-focus-within:text-violet-600 transition-colors" />
-            <input
-              type="text"
-              placeholder="Search your links..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-20 pr-10 py-7 text-xl bg-white/70 text-gray-800  rounded-3xl border-2 border-white/50 focus:border-violet-400 focus:ring-8 focus:ring-violet-100/50 transition-all duration-500 shadow-xl"
-            />
-          </div>
-        </div>
-
-        {/* Links List */}
-        <div className="space-y-8">
-          {loading ? (
-            <div className="text-center py-32">
-              <Loader2 className="w-16 h-16 text-violet-600 animate-spin mx-auto mb-6" />
-              <p className="text-xl text-gray-500">Loading your beautiful links...</p>
-            </div>
-          ) : filteredLinks.length === 0 ? (
-            <div className="text-center py-40">
-              <div className="w-40 h-40 mx-auto bg-linear-to-br from-violet-100 to-indigo-100 rounded-full flex items-center justify-center mb-10">
-                <Link2 className="w-20 h-20 text-violet-400" />
+        <div className="border p-4 rounded-2xl bg-white/70 backdrop-blur-2xl shadow-xl border-white/50">
+          {/* Search + Sorting Bar */}
+          <div className="w-full mb-12">
+            <div className="flex flex-col lg:flex-row gap-6 items-center justify-between">
+              {/* Search */}
+              <div className="relative group flex-1 max-w-2xl">
+                <Search className="absolute left-8 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-600 group-focus-within:text-violet-600 transition-colors" />
+                <input
+                  type="text"
+                  placeholder="Search your links..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="w-full pl-20 pr-5 py-4 text-xl text-gray-800 bg-white/80 rounded-3xl border-2 border-white/50 focus:border-violet-500 focus:ring-8 focus:ring-violet-100/50 transition-all duration-500 shadow-2xl placeholder-gray-500"
+                />
               </div>
-              <h3 className="text-4xl font-bold text-gray-800 mb-4">No links yet</h3>
-              <p className="text-xl text-gray-500">Create your first masterpiece above</p>
+
+              {/* Sorting Pills */}
+              <div className="flex items-center gap-3 bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl border border-white/50 p-3">
+                <span className="text-sm font-semibold text-gray-600 whitespace-nowrap px-2">
+                  Sort by:
+                </span>
+
+                {[
+                  { key: "date", label: "Created" },
+                  { key: "clicks", label: "Clicks" },
+                  { key: "code", label: "Code" },
+                ].map(({ key, label }) => (
+                  <button
+                    key={key}
+                    onClick={() => {
+                      if (sortBy === key) {
+                        setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+                      } else {
+                        setSortBy(key);
+                        setSortOrder(
+                          key === "date" || key === "clicks" ? "desc" : "asc"
+                        );
+                      }
+                    }}
+                    className={`px-5 py-3 rounded-2xl font-medium text-sm capitalize transition-all duration-300 flex items-center gap-2 ${
+                      sortBy === key
+                        ? "bg-linear-to-r from-violet-600 to-indigo-600 text-white shadow-lg"
+                        : "text-gray-600 hover:bg-gray-100"
+                    }`}
+                  >
+                    {label}
+                    {sortBy === key && (
+                      <ArrowUpDown
+                        className={`w-4 h-4 ${
+                          sortOrder === "asc" ? "rotate-180" : ""
+                        } transition-transform`}
+                      />
+                    )}
+                  </button>
+                ))}
+              </div>
             </div>
-          ) : (
-            filteredLinks
-              .sort((a, b) => b.clicks - a.clicks)
-              .map((link) => (
-                <LinkRow key={link.code} link={link} onDelete={handleDelete} baseUrl={baseUrl} />
+          </div>
+
+          {/* Links List */}
+          <div className="space-y-6">
+            {loading ? (
+              <div className="text-center py-32">
+                <Loader2 className="w-16 h-16 text-violet-600 animate-spin mx-auto mb-6" />
+                <p className="text-xl text-gray-500">
+                  Loading your beautiful links...
+                </p>
+              </div>
+            ) : sortedLinks.length === 0 ? (
+              <div className="text-center py-40">
+                <div className="w-40 h-40 mx-auto bg-linear-to-br from-violet-100 to-indigo-100 rounded-full flex items-center justify-center mb-10">
+                  <Link2 className="w-20 h-20 text-violet-400" />
+                </div>
+                <h3 className="text-4xl font-bold text-gray-800 mb-4">
+                  {links.length === 0
+                    ? "No links yet"
+                    : "No links match your search"}
+                </h3>
+                <p className="text-xl text-gray-500">
+                  {links.length === 0
+                    ? "Create your first masterpiece above"
+                    : "Try adjusting your search or sorting"}
+                </p>
+              </div>
+            ) : (
+              sortedLinks.map((link) => (
+                <LinkRow
+                  key={link.code}
+                  link={link}
+                  onDelete={handleDelete}
+                  baseUrl={baseUrl}
+                />
               ))
-          )}
-        </div>
+            )}
+          </div>
         </div>
 
         {/* Footer */}

@@ -1,14 +1,11 @@
 # 🚀 TinyLink – A Modern URL Shortener
 
-[![Vercel](https://theregister.s3.amazonaws.com/prod/img/2021-10-21/16-10-2021-16-23-40-thumbnail-800x600.jpg)](https://vercel.com) [![MongoDB](https://www.mongodb.com/static/images/global/brand-logos/mongodb-logo-fullcolor-black-rgb.svg)](https://mongodb.com) [![Next.js](https://assets.vercel.com/image/upload/v1662130453/nextjs/DarkNextjsLogo.png)](https://nextjs.org) [![Tailwind CSS](https://tailwindcss.com/favicon-32x32.png)](https://tailwindcss.com)
+[![Vercel](https://theregister.s3.amazonaws.com/prod/img/2021-10-21/16-10-2021-16-23-40-thumbnail-800x600.jpg)](https://vercel.com) [![MongoDB](https://www.mongodb.com/static/images/global/brand-logos/mongodb-logo-fullcolor-black-rgb.svg)](https://mongodb.com) [![Next.js](https://assets.vercel.com/image/upload/v1662130453/nextjs/DarkNextjsLogo.png)](https://nextjs.org) [![Tailwind CSS](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSDKn3vA2YUbXzN0ZC3gALWJ08gJN-Drl15w&s)](https://tailwindcss.com)
 
 **TinyLink** is a full-stack URL shortening service inspired by bit.ly, developed as the take-home assignment for the Full Stack Developer role at Aganitha Cognitive Solutions. It enables users to create short links with optional custom codes, track click analytics, manage links via a responsive dashboard, and handle seamless redirects. Built with a focus on clean architecture, automated test compliance, and production-ready deployment.
 
-**Live Demo:** [https://tinylink-yourusername.vercel.app](https://tinylink-yourusername.vercel.app)  
-**Repository:** [github.com/yourusername/tinylink](https://github.com/yourusername/tinylink)  
-**Video Walkthrough:** [Loom Video Link](https://www.loom.com/share/your-video-id) (2-min overview: setup, features, code tour, deployment)  
-**LLM Assistance Transcript:** [This Grok/xAI Chat Log](https://grok.x.ai/chat/your-session) (Used for initial scaffolding and debugging; I reviewed/edited all code for understanding).
-
+**Live Demo:** [https://tinylink-taupe.vercel.app/](https://tinylink-taupe.vercel.app/)  
+**Repository:** [https://github.com/Amitkr77/tinylink](https://github.com/Amitkr77/tinylink)  
 **Candidate ID:** Naukri1125  
 **Author:** Amit Kumar  
 **Built:** November 26, 2025  

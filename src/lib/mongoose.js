@@ -1,25 +1,41 @@
 // lib/mongoose.js
 import mongoose from 'mongoose';
 
-const linkSchema = new mongoose.Schema({
-    code: { type: String, required: true, unique: true },
-    targetUrl: { type: String, required: true },
-    clicks: { type: Number, default: 0 },
-    lastClicked: { type: Date },
-}, { timestamps: true });
+const MONGODB_URI = process.env.MONGODB_URI;
 
-export const Link = mongoose.models.Link || mongoose.model('Link', linkSchema);
+if (!MONGODB_URI) {
+  throw new Error('Please define MONGODB_URI in .env.local');
+}
 
+let cached = global.mongoose;
 
-let cached = null;
+if (!cached) {
+  cached = global.mongoose = { conn: null, promise: null };
+}
 
 export async function connectDB() {
-    if (cached) return cached;
-    try {
-        const db = await mongoose.connect(process.env.MONGODB_URI);
-        cached = db;
-        console.log('MongoDB connected');
-    } catch (e) {
-        throw new Error('DB connection failed');
-    }
+  if (cached.conn) {
+    return cached.conn;
+  }
+
+  if (!cached.promise) {
+    const opts = {
+      bufferCommands: false,
+    };
+
+    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
+      console.log('MongoDB connected');
+      return mongoose;
+    });
+  }
+
+  try {
+    cached.conn = await cached.promise;
+  } catch (e) {
+    cached.promise = null;
+    console.error('MongoDB connection error:', e);
+    throw e;
+  }
+
+  return cached.conn;
 }

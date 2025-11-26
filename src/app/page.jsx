@@ -142,12 +142,22 @@ export default function Dashboard() {
     }
   };
 
-  const handleDelete = async (code) => {
-    await fetch(`/api/links/${code}`, { method: "DELETE" });
-    fetchLinks();
-  };
+ const handleDelete = async (code) => {
+    if (!confirm("Delete this link?")) return;
 
-  const filteredLinks = links.filter(
+    try {
+        const res = await fetch(`/api/links?code=${code}`, { method: "DELETE" });
+        if (res.ok) {
+            fetchLinks();
+        } else {
+            alert("Failed to delete");
+        }
+    } catch (err) {
+        alert("Network error");
+    }
+};
+
+  const filteredLinks = links?.filter(
     (link) =>
       link.code.toLowerCase().includes(search.toLowerCase()) ||
       link.targetUrl.toLowerCase().includes(search.toLowerCase())

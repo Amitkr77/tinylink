@@ -1,7 +1,5 @@
 # 🚀 TinyLink – A Modern URL Shortener
 
-[![Vercel](https://theregister.s3.amazonaws.com/prod/img/2021-10-21/16-10-2021-16-23-40-thumbnail-800x600.jpg)](https://vercel.com) [![MongoDB](https://www.mongodb.com/static/images/global/brand-logos/mongodb-logo-fullcolor-black-rgb.svg)](https://mongodb.com) [![Next.js](https://assets.vercel.com/image/upload/v1662130453/nextjs/DarkNextjsLogo.png)](https://nextjs.org) [![Tailwind CSS](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSDKn3vA2YUbXzN0ZC3gALWJ08gJN-Drl15w&s)](https://tailwindcss.com)
-
 **TinyLink** is a full-stack URL shortening service inspired by bit.ly, developed as the take-home assignment for the Full Stack Developer role at Aganitha Cognitive Solutions. It enables users to create short links with optional custom codes, track click analytics, manage links via a responsive dashboard, and handle seamless redirects. Built with a focus on clean architecture, automated test compliance, and production-ready deployment.
 
 **Live Demo:** [https://tinylink-taupe.vercel.app/](https://tinylink-taupe.vercel.app/)  
@@ -16,10 +14,10 @@
 ## 🌟 Key Features
 
 ### 🔗 URL Shortening
-- **Input:** Long URL + optional custom short code (e.g., `docs` → `/docs`).
+- **Input:** Long URL + optional custom short code.
 - **Validation:** URL format checked (using `is-url`); custom codes (6-8 alphanumeric: `[A-Za-z0-9]{6,8}`) verified for global uniqueness—returns HTTP 409 if duplicate.
 - **Auto-Generation:** Random 7-char alphanumeric code if none provided (collision-resistant via crypto).
-- **Output:** Short URL like `https://tinylink.app/ABC123`.
+- **Output:** Short URL like `[https://tinylink.app/ABC123](https://tinylink-taupe.vercel.app/GMAIL123)`.
 
 ### 🔁 Redirects & Tracking
 - **Route:** `GET /:code` → HTTP 302 redirect to target URL.
@@ -52,7 +50,7 @@ All features align precisely with the assignment spec for autograding: stable ro
 
 | Layer | Technologies |
 |-------|--------------|
-| **Frontend** | Next.js 14 (App Router, SSR/CSR hybrid), React 18, Tailwind CSS 3 (JIT mode for lightweight styles) |
+| **Frontend** | Next.js 14 (App Router, SSR/CSR hybrid), React 18, Tailwind CSS 3  |
 | **Backend** | Next.js API Routes, Mongoose ODM for MongoDB |
 | **Database** | MongoDB Atlas (free M0 tier: 512MB, serverless) |
 | **Validation** | Zod (schemas), `is-url` (URL checks) |
@@ -121,7 +119,7 @@ Fully spec-compliant; tested with Postman/Curl.
 
 | Method | Path              | Description                  | Response Example |
 |--------|-------------------|------------------------------|------------------|
-| **POST** | `/api/links`     | Create link (409 on duplicate) | `{ "code": "ABC123", "url": "https://example.com" }` |
+| **POST** | `/api/links`     | Create link (409 on duplicate) | `{ "code": "ABC123", "url": "[https://example.com](https://tinylink-taupe.vercel.app/GMAIL123)" }` |
 | **GET**  | `/api/links`     | List all (sorted by createdAt desc) | `[{ "code": "...", "targetUrl": "...", "clicks": 5, "lastClicked": "2025-11-26T..." }]` |
 | **GET**  | `/api/links/:code` | Single stats (404 if missing) | `{ "code": "...", "targetUrl": "...", "clicks": 5, "lastClicked": "..." }` |
 | **DELETE** | `/api/links/:code` | Delete (no-op if missing) | `{ "success": true }` |
@@ -140,7 +138,7 @@ Fully spec-compliant; tested with Postman/Curl.
 ### Quick Start
 1. **Clone & Install:**
    ```bash
-   git clone https://github.com/yourusername/tinylink.git
+   git clone https://github.com/Amitkr77/tinylink.git
    cd tinylink
    npm install
    ```
@@ -170,44 +168,13 @@ Fully spec-compliant; tested with Postman/Curl.
 **Recommended: Vercel (Free, 5-min Setup)**
 1. Push to GitHub: `git add . && git commit -m "Initial deploy" && git push`.
 2. Import repo to [vercel.com](https://vercel.com) → Deploy.
-3. Add env vars in Vercel dashboard: `MONGODB_URI`, `BASE_URL` (your Vercel URL, e.g., `https://tinylink.vercel.app`).
+3. Add env vars in Vercel dashboard: `MONGODB_URI`, `BASE_URL` (your Vercel URL, e.g., `[https://tinylink.vercel.app](https://tinylink-taupe.vercel.app/GMAIL123)`).
 4. Custom domain (optional): Add via Vercel settings.
 5. Auto-deploys on push; edge caching for fast redirects.
 
 **Alternatives:** Render/Railway (Node.js runtime) + Atlas.
 
 **Production Notes:** Env vars secure (no commits); rate-limiting via Vercel (add if scaling).
-
----
-
-## 🎥 Video Walkthrough
-[Watch on Loom](https://www.loom.com/share/your-video-id) (1:45 duration):
-- **0:00-0:20:** Project overview & folder structure.
-- **0:20-0:50:** Core code tour (Mongoose model, API routes, redirect logic).
-- **0:50-1:10:** Live demo (dashboard add → redirect → stats → delete).
-- **1:10-1:45:** Deployment steps & autograding compliance.
-
-Recorded with screen sharing; explains decisions (e.g., "Zod for type-safe validation without TS").
-
----
-
-## 🧪 Assignment Compliance Checklist
-| Requirement | Status | Notes |
-|-------------|--------|-------|
-| **Public URL** | ✅ Deployed | [tinylink.vercel.app](https://tinylink.vercel.app) |
-| **GitHub Repo** | ✅ | [github.com/yourusername/tinylink](https://github.com/yourusername/tinylink) (clear commits, e.g., "feat: add redirect tracking") |
-| **Video Explanation** | ✅ | [Loom link](https://www.loom.com/share/your-video-id) |
-| **LLM Transcript** | ✅ | Grok/xAI session (used for code gen; I refactored for ownership) |
-| **Routes:** `/` (Dashboard), `/code/:code` (Stats), `/:code` (Redirect 302/404) | ✅ | Exact spec |
-| **Health:** `/healthz` (200, `{ok: true, version: "1.0"}`) | ✅ | Includes DB ping |
-| **APIs:** POST/GET/DELETE `/api/links*` (409 on dupes) | ✅ | Zod-validated, atomic ops |
-| **Features:** Shorten (custom/random/validate), Redirect (track clicks), Delete (404 post-del) | ✅ | UI states, search, copy buttons |
-| **UX:** Responsive, clean (Tailwind), states/form validation | ✅ | Mobile-tested, no raw HTML |
-| **Env:** `.env.example` provided | ✅ | DB URL + base URL |
-| **Codes:** `[A-Za-z0-9]{6,8}` | ✅ | Enforced in API |
-| **Extra Credit:** Modular code, working deploy | ✅ | Prettier/ESLint, Husky |
-
-**Autograding Notes:** Field names/responses match spec (e.g., `targetUrl` not `url` in some responses—wait, spec says `target URL` in UI, but API uses `targetUrl` for consistency). Tested locally with curl.
 
 ---
 
@@ -225,4 +192,4 @@ MIT – Free to use/modify.
 
 ---
 
-**Thanks for reviewing!** This project demonstrates end-to-end full-stack skills: from schema design to polished UX and scalable deployment. Questions? Reach out via [LinkedIn](https://linkedin.com/in/amitkumar) or the repo. 🚀
+**Thanks for reviewing!** This project demonstrates end-to-end full-stack skills: from schema design to polished UX and scalable deployment. Questions? Reach out via [LinkedIn](www.linkedin.com/in/amitkr77) or the repo. 🚀
